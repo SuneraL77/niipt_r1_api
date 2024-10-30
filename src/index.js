@@ -1,9 +1,12 @@
+import dotenv from 'dotenv'; // Add this import
 import mongoose from "mongoose";
-import app from "./app.js"
+import app from "./app.js";
 import logger from "./config/logger.config.js";
 
+// Load environment variables
+dotenv.config();
 
-const { DATABASE_URL } = process.env;
+const { DATABASE_URL } = process.env; // Ensure DATABASE_URL is available
 const PORT = process.env.PORT || 5000;
 
 mongoose.connection.on("error", (err) => {
@@ -16,9 +19,13 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 mongoose
-  .connect(DATABASE_URL)
+  .connect(DATABASE_URL) // This should now have a valid string
   .then(() => {
     logger.info("Connected to MongoDB");
+  })
+  .catch((err) => {
+    logger.error(`Failed to connect to MongoDB: ${err.message}`);
+    process.exit(1);
   });
 
 let server;
@@ -28,7 +35,7 @@ server = app.listen(PORT, () => {
   console.log("process =>", process.pid);
 });
 
-//handle server errors
+// Handle server errors
 const exitHandler = () => {
   if (server) {
     logger.info("Server Closed");
@@ -38,17 +45,16 @@ const exitHandler = () => {
   }
 };
 
-const unexprctdErroHandler = (error) => {
+const unexpectedErrorHandler = (error) => {
   logger.error(error);
   exitHandler();
 };
 
-process.on("uncaughtException", unexprctdErroHandler);
-process.on("unhandledRejection", unexprctdErroHandler);
+process.on("uncaughtException", unexpectedErrorHandler);
+process.on("unhandledRejection", unexpectedErrorHandler);
 process.on("SIGTERM", () => {
   if (server) {
     logger.info("Server Closed");
     process.exit(1);
   }
 });
-
