@@ -19,7 +19,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 mongoose
-  .connect(DATABASE_URL) // This should now have a valid string
+  .connect("mongodb://127.0.0.1:27017/nilwala_collage") // This should now have a valid string
   .then(() => {
     logger.info("Connected to MongoDB");
   })
